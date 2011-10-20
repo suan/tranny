@@ -11,7 +11,7 @@ Install
 Put this in your Gemfile.
 
         gem "tranny", :git =>
-          "git://git.cashnetusa.com/gems/tranny.git"
+          "git://github.com/joshkrueger/tranny.git"
 
 Basic Usage
 ===========

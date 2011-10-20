@@ -8,7 +8,16 @@ Tranny provides a simple DSL to transform a supplied hash with an arbitrary stru
 Install
 =======
 
+Standard gem install.
+
+        gem install tranny
+
+
 Put this in your Gemfile.
+
+        gem "tranny"
+
+or
 
         gem "tranny", :git =>
           "git://github.com/joshkrueger/tranny.git"

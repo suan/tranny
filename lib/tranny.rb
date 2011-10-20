@@ -59,6 +59,13 @@ class Tranny
       [from, to, via]
     end
 
+    def passthrough(*options)
+      options.each do |k|
+        input_value = get_val(k)
+        set_val(k, input_value)
+      end
+    end
+
     def input_multiple(options)
       from, to, via = parse_options(options)
       via = lambda { |x| x.join(" ") } if via.nil?

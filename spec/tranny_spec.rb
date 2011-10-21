@@ -191,6 +191,19 @@ describe Tranny do
         TestTranny.convert(input_hash).should == desired_hash
       end
 
+      it "should produce a different key, but nested (with string keys)" do
+        class TestTranny < Tranny
+          transform do
+            input "foo" => ["bar", "foo"]
+          end
+        end
+ 
+        input_hash = { "foo" => "FOO!" }
+        desired_hash = { "bar" => { "foo" => "FOO!" } }
+
+        TestTranny.convert(input_hash).should == desired_hash
+      end
+
       it "should use nested input and produce the same key, but nested differently" do
         class TestTranny < Tranny
           transform do

@@ -44,10 +44,13 @@ class Tranny
   end
 
   def parse_options(options)
-    from, to, via = nil
+    from, to, via, default = nil
 
     via = options[:via] if options.key? :via
     options.delete :via
+
+    default = options[:default] if options.key? :default
+    options.delete :default
 
     from, to = if options.key? :from and options.key? :to
       [options[:from], options[:to]]
@@ -61,7 +64,7 @@ class Tranny
       end
     end
 
-    [from, to, via]
+    [from, to, via, default]
   end
 
   def passthrough(*options)
@@ -72,7 +75,7 @@ class Tranny
   end
 
   def input_multiple(options)
-    from, to, via = parse_options(options)
+    from, to, via, default = parse_options(options)
     via = lambda { |x| x.join(" ") } if via.nil?
 
     old_values = from.map{ |k| get_val(k) }
@@ -82,11 +85,11 @@ class Tranny
   end
 
   def input(options)
-    from, to, via = parse_options(options)
-    return if get_val(from).nil? && !options.has_key?(:default)
+    from, to, via, default = parse_options(options)
+    return if get_val(from).nil? && default.nil?
 
-    new_value = if get_val(from).nil? && options[:default]
-      options[:default].respond_to?(:call) ? options[:default].call : options[:default]
+    new_value = if get_val(from).nil? && !default.nil?
+      default.respond_to?(:call) ? default.call : default
     elsif via.is_a? Proc
       via.call get_val(from)
     elsif via.is_a? Symbol

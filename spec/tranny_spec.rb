@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'date'
 
 describe Tranny do
   describe "convert" do
@@ -24,6 +25,33 @@ describe Tranny do
 
       input_hash = { "foo" => "bar" }
       TestTranny.convert(input_hash).should == { :foo => "rab" }
+    end
+
+    context "the input key is missing" do
+      it "does not set it in the output" do
+        class TestTranny < Tranny
+          transform do
+            input "birth_date" => :birthday, :via => lambda { |d| d.strftime('%F') }
+          end
+        end
+
+        input_hash = { "foo" => "bar" }
+        TestTranny.convert(input_hash).should == {}
+      end
+
+      it "can set a default value" do
+        class TestTranny < Tranny
+          transform do
+            input "birth_date" => :birthday, :default => Date.today
+            input "death_date" => :deathday, :default => lambda { Date.today + 5 }
+          end
+        end
+
+        input_hash = { "foo" => "bar" }
+        desired_hash = { :birthday => Date.today, :deathday => Date.today + 5 }
+
+        TestTranny.convert(input_hash).should == desired_hash
+      end
     end
 
     context "the value has no transform" do
@@ -69,8 +97,8 @@ describe Tranny do
           transform do
             input :foo => "foo"
           end
-        end 
-        
+        end
+
         desired_hash = { "foo" => "bar" }
         input_hash = { :foo => "bar" }
 
@@ -78,7 +106,7 @@ describe Tranny do
       end
 
     end
-    
+
     context "the value should be capitalized" do
        it "should produce the same key" do
         class TestTranny < Tranny
@@ -105,7 +133,7 @@ describe Tranny do
 
         TestTranny.convert(input_hash).should == desired_hash
       end
-      
+
     end
 
     context "use nested input" do
@@ -156,7 +184,7 @@ describe Tranny do
             input "foo" => [:bar, :foo]
           end
         end
-      
+
         input_hash = { "foo" => "FOO!" }
         desired_hash = { :bar => { :foo => "FOO!" } }
 

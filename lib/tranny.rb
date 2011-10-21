@@ -83,8 +83,11 @@ class Tranny
 
   def input(options)
     from, to, via = parse_options(options)
+    return if get_val(from).nil? && !options.has_key?(:default)
 
-    new_value = if via.is_a? Proc
+    new_value = if get_val(from).nil? && options[:default]
+      options[:default].respond_to?(:call) ? options[:default].call : options[:default]
+    elsif via.is_a? Proc
       via.call get_val(from)
     elsif via.is_a? Symbol
       get_val(from).send(via)

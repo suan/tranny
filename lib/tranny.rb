@@ -11,7 +11,7 @@ class Tranny
     @input_hash = input_hash
     @output_hash = Hash.new { |h,k| h[k] = Hash.new(&h.default_proc) }
     @transform_block.call
-    @output_hash
+    Hash[@output_hash]
   end
 
   class << self

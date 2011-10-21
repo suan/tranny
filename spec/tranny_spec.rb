@@ -2,6 +2,18 @@ require 'spec_helper'
 
 describe Tranny do
   describe "convert" do
+    it "returns real hashes" do
+      class TestTranny < Tranny
+        transform do
+          input "foo" => :baz
+        end
+      end
+
+      input_hash = { "foo" => "bar" }
+      result = TestTranny.convert(input_hash)
+      result[:missing].should be_nil
+    end
+
     context "the value has no transform" do
       it "should produce the same key (string)" do
         class TestTranny < Tranny

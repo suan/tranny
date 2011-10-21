@@ -5,6 +5,11 @@ Tranny provides a simple DSL to transform a supplied hash with an arbitrary stru
 
 ***Note:*** *Tranny does not simply modify the hash you have passed in. It actually creates a new hash from scratch. It only copies or does transformations on the fields you specify in the transform block.*
 
+Support
+=======
+
+Should work for both 1.8 and 1.9 rubies.
+
 Install
 =======
 

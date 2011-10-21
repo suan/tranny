@@ -1,7 +1,59 @@
 require 'spec_helper'
+require 'date'
 
 describe Tranny do
   describe "convert" do
+    it "returns real hashes" do
+      class TestTranny < Tranny
+        transform do
+          input "foo" => :baz
+        end
+      end
+
+      input_hash = { "foo" => "bar" }
+      result = TestTranny.convert(input_hash)
+      result[:missing].should be_nil
+    end
+
+    it "can call instance methods from :via" do
+      class TestTranny < Tranny
+        transform do
+          input "foo" => :foo, :via => lambda { |value| my_method(value) }
+        end
+        def my_method(value); value.reverse; end
+      end
+
+      input_hash = { "foo" => "bar" }
+      TestTranny.convert(input_hash).should == { :foo => "rab" }
+    end
+
+    context "the input key is missing" do
+      it "does not set it in the output" do
+        class TestTranny < Tranny
+          transform do
+            input "birth_date" => :birthday, :via => lambda { |d| d.strftime('%F') }
+          end
+        end
+
+        input_hash = { "foo" => "bar" }
+        TestTranny.convert(input_hash).should == {}
+      end
+
+      it "can set a default value" do
+        class TestTranny < Tranny
+          transform do
+            input "birth_date" => :birthday, :default => Date.today
+            input "death_date" => :deathday, :default => lambda { Date.today + 5 }
+          end
+        end
+
+        input_hash = { "foo" => "bar" }
+        desired_hash = { :birthday => Date.today, :deathday => Date.today + 5 }
+
+        TestTranny.convert(input_hash).should == desired_hash
+      end
+    end
+
     context "the value has no transform" do
       it "should produce the same key (string)" do
         class TestTranny < Tranny
@@ -45,8 +97,8 @@ describe Tranny do
           transform do
             input :foo => "foo"
           end
-        end 
-        
+        end
+
         desired_hash = { "foo" => "bar" }
         input_hash = { :foo => "bar" }
 
@@ -54,7 +106,7 @@ describe Tranny do
       end
 
     end
-    
+
     context "the value should be capitalized" do
        it "should produce the same key" do
         class TestTranny < Tranny
@@ -81,7 +133,7 @@ describe Tranny do
 
         TestTranny.convert(input_hash).should == desired_hash
       end
-      
+
     end
 
     context "use nested input" do
@@ -132,7 +184,7 @@ describe Tranny do
             input "foo" => [:bar, :foo]
           end
         end
-      
+
         input_hash = { "foo" => "FOO!" }
         desired_hash = { :bar => { :foo => "FOO!" } }
 
@@ -194,5 +246,25 @@ describe Tranny do
       end
     end
 
+  end
+
+  context "multiple trannies" do
+    it "does not share transformations between unrelated subclasses" do
+      class TrannyA < Tranny
+        transform do
+          input "foo" => :foo
+        end
+      end
+
+      class TrannyB < Tranny
+        transform do
+          input "bar" => :bar
+        end
+      end
+
+      input_hash = { "foo" => "fooval", "bar" => "barval" }
+      TrannyA.convert(input_hash).should == { :foo => "fooval" }
+      TrannyB.convert(input_hash).should == { :bar => "barval" }
+    end
   end
 end

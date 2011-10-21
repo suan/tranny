@@ -14,6 +14,18 @@ describe Tranny do
       result[:missing].should be_nil
     end
 
+    it "can call instance methods from :via" do
+      class TestTranny < Tranny
+        transform do
+          input "foo" => :foo, :via => lambda { |value| my_method(value) }
+        end
+        def my_method(value); value.reverse; end
+      end
+
+      input_hash = { "foo" => "bar" }
+      TestTranny.convert(input_hash).should == { :foo => "rab" }
+    end
+
     context "the value has no transform" do
       it "should produce the same key (string)" do
         class TestTranny < Tranny
@@ -206,5 +218,25 @@ describe Tranny do
       end
     end
 
+  end
+
+  context "multiple trannies" do
+    it "does not share transformations between unrelated subclasses" do
+      class TrannyA < Tranny
+        transform do
+          input "foo" => :foo
+        end
+      end
+
+      class TrannyB < Tranny
+        transform do
+          input "bar" => :bar
+        end
+      end
+
+      input_hash = { "foo" => "fooval", "bar" => "barval" }
+      TrannyA.convert(input_hash).should == { :foo => "fooval" }
+      TrannyB.convert(input_hash).should == { :bar => "barval" }
+    end
   end
 end

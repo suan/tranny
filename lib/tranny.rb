@@ -101,4 +101,8 @@ class Tranny
     set_val(to, new_value)
   end
 
+  def insert(options)
+    options.each { |key, value| set_val(key, value) }
+  end
+
 end

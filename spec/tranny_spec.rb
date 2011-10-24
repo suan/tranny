@@ -54,6 +54,20 @@ describe Tranny do
       end
     end
 
+    context "inserting keys" do
+      it "should insert the key regardless of the input hash" do
+        class TestTranny < Tranny
+          transform do
+            insert :bar => 'bar', :quux => 'quux'
+          end
+        end
+
+        input_hash = { "foo" => "foo" }
+        desired_hash = { :bar => 'bar', :quux => 'quux' }
+        TestTranny.convert(input_hash).should == desired_hash
+      end
+    end
+
     context "the value has no transform" do
       it "should produce the same key (string)" do
         class TestTranny < Tranny

@@ -86,6 +86,23 @@ describe Tranny do
         result.should == desired_hash
       end
 
+      it "can use the shorthand method and default to output nesting" do
+        class TestTranny < Tranny
+          transform do
+            nested :out_nest do
+              input "foo" => :foo
+            end
+          end
+        end
+
+        input_hash = { "foo" => "bar" }
+        desired_hash = { :out_nest => { :foo => "bar" } }
+
+        result = TestTranny.convert(input_hash)
+
+        result.should == desired_hash
+      end
+
     end
   end
 end

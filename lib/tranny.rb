@@ -118,7 +118,12 @@ class Tranny
   end
 
   def nested(options,  &trans_block)
-    options[:type] = "output" unless options.key? :type
+    
+    if options.is_a? Symbol
+      options = {:key => options, :type => "output"}
+    else
+      options[:type] = "output" unless options.key? :type
+    end
 
     if options[:type] == "output" or options[:type] == "input"
       type = options[:type]

@@ -5,6 +5,9 @@ class Tranny
   class << self
     attr_reader :transform_block
 
+    attr_reader :input_nest
+    attr_reader :output_nest
+
     def convert(input_hash)
       new.convert(input_hash)
     end
@@ -12,10 +15,13 @@ class Tranny
     def transform(&trans_block)
       @transform_block = trans_block
     end
+
   end
 
   def initialize
     @output_hash = Hash.new { |h,k| h[k] = Hash.new(&h.default_proc) }
+    @input_nest = []
+    @output_nest = []
   end
 
   def convert(input)
@@ -27,6 +33,9 @@ class Tranny
   private
 
   def set_val(dst, val)
+
+    dst = (@output_nest + [dst]).flatten unless @output_nest.empty?
+
     if dst.is_a? Array
       last_key = dst.pop
       dst.reduce(@output_hash) { |h,k| h[k] }[last_key] = val
@@ -36,6 +45,9 @@ class Tranny
   end
 
   def get_val(src)
+
+    src = (@input_nest + [src]).flatten unless @input_nest.empty?
+
     if src.is_a? Array
       src.reduce(@input_hash) { |h,k| h[k] }
     else
@@ -103,6 +115,23 @@ class Tranny
 
   def insert(options)
     options.each { |key, value| set_val(key, value) }
+  end
+
+  def nested(options,  &trans_block)
+    options[:type] = "output" unless options.key? :type
+
+    if options[:type] == "output" or options[:type] == "input"
+      type = options[:type]
+      if options[:key]
+        key = options[:key]
+        nest_var = "@#{type}_nest"
+        self.instance_variable_set(:"#{nest_var}", self.instance_variable_get(:"#{nest_var}") + [key].flatten)
+
+        instance_exec(&trans_block)
+
+        self.instance_variable_set(:"#{nest_var}", self.instance_variable_get(:"#{nest_var}") - [key].flatten)
+      end
+    end
   end
 
 end

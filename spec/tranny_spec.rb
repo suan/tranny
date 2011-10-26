@@ -27,6 +27,29 @@ describe Tranny do
       TestTranny.convert(input_hash).should == { :foo => "rab" }
     end
 
+    context "via is a symbol" do
+      it "can call instance methods via a symbol" do
+        class TestTranny < Tranny
+        transform do
+          input "foo" => :foo, :via => :single_arg_method
+          input_multiple ["num1", "num2"] => :diff, :via => :multi_arg_method
+          input :nums => :diff2, :via => :multi_arg_method
+          input :nums => :splat_1, :via => :splat_method
+          input "foo" => :foo_splat, :via => :splat_method
+        end
+
+        def single_arg_method(value); value.reverse; end
+        def multi_arg_method(value1, value2); value1 - value2; end
+        def splat_method(*arg); arg.join(", "); end
+      end
+
+      input_hash = { "foo" => "bar", "num1" => 100, "num2" => 50, :nums => [100, 50] }
+
+      desired_hash = {:foo => "rab", :diff => 50, :diff2 => 50, :splat_1 => "100, 50", :foo_splat => "bar" }
+      TestTranny.convert(input_hash).should == desired_hash
+      end
+    end
+
     context "the input key is missing" do
       it "does not set it in the output" do
         class TestTranny < Tranny

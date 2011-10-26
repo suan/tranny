@@ -90,8 +90,23 @@ class Tranny
     from, to, via, default = parse_options(options)
     via = lambda { |x| x.join(" ") } if via.nil?
 
+
     old_values = from.map{ |k| get_val(k) }
-    new_value = via.call old_values
+    new_value = if via.is_a? Proc
+      via.call old_values
+    elsif via.is_a? Symbol
+      if methods.include? via.to_s
+        via_method = method(via)
+        if via_method.arity != 1
+          via_method.call(*old_values)
+        else
+          via_method.call(old_values)
+        end
+      else
+        old_values.send(via)
+      end
+    end
+
 
     set_val(to, new_value)
   end
@@ -105,7 +120,16 @@ class Tranny
     elsif via.is_a? Proc
       via.call get_val(from)
     elsif via.is_a? Symbol
-      get_val(from).send(via)
+      if methods.include? via.to_s
+        via_method = method(via)
+        if via_method.arity != 1
+          method(via).call(*get_val(from))
+        else
+          method(via).call(get_val(from))
+        end
+      else
+        get_val(from).send(via)
+      end
     else
       get_val(from)
     end

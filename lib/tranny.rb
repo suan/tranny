@@ -95,7 +95,7 @@ class Tranny
     new_value = if via.is_a? Proc
       via.call old_values
     elsif via.is_a? Symbol
-      if methods.include? via.to_s
+      if methods.include? via.to_s or methods.include? via
         via_method = method(via)
         if via_method.arity != 1
           via_method.call(*old_values)
@@ -120,7 +120,7 @@ class Tranny
     elsif via.is_a? Proc
       via.call get_val(from)
     elsif via.is_a? Symbol
-      if methods.include? via.to_s
+      if methods.include? via.to_s or methods.include? via
         via_method = method(via)
         if via_method.arity != 1
           method(via).call(*get_val(from))

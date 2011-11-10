@@ -58,11 +58,8 @@ class Tranny
   def parse_options(options)
     from, to, via, default = nil
 
-    via = options[:via] if options.key? :via
-    options.delete :via
-
-    default = options[:default] if options.key? :default
-    options.delete :default
+    via = options.delete :via
+    default = options.delete :default
 
     from, to = if options.key? :from and options.key? :to
       [options[:from], options[:to]]

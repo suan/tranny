@@ -317,4 +317,38 @@ describe Tranny do
       TrannyB.convert(input_hash).should == { :bar => "barval" }
     end
   end
+
+  context "passthrough" do
+
+    it "ignores a passthrough'd key if it is absent" do
+      class TestTranny < Tranny
+        transform do
+          passthrough :foo
+          input :bar => :bar_key
+        end
+      end
+
+      input_hash = { :bar => 'one' }
+      desired_hash = { :bar_key => 'one' }
+
+      result = TestTranny.convert(input_hash)
+      result.should == desired_hash
+    end
+
+    it "does not ignore the passthrough key if it is present but nil" do
+      class TestTranny < Tranny
+        transform do
+          passthrough :foo
+          input :bar => :bar_key
+        end
+      end
+
+      input_hash = { :bar => 'one', :foo => nil }
+      desired_hash = { :bar_key => 'one', :foo => nil }
+
+      result = TestTranny.convert(input_hash)
+      result.should == desired_hash
+    end
+
+  end
 end

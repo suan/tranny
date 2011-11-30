@@ -2,6 +2,8 @@ require "tranny/version"
 
 class Tranny
 
+  ValueNotPresentError = Class.new(StandardError)
+
   class << self
     attr_reader :transform_block
 
@@ -45,13 +47,23 @@ class Tranny
   end
 
   def get_val(src)
+    return get_val!(src)
+  rescue ValueNotPresentError
+    return nil
+  end
+
+  def get_val!(src)
 
     src = (@input_nest + [src]).flatten unless @input_nest.empty?
 
     if src.is_a? Array
       src.reduce(@input_hash) { |h,k| h[k] }
     else
-      @input_hash[src]
+      if @input_hash.key?(src)
+        @input_hash[src]
+      else
+        raise ValueNotPresentError
+      end
     end
   end
 
@@ -78,8 +90,11 @@ class Tranny
 
   def passthrough(*options)
     options.each do |k|
-      input_value = get_val(k)
-      set_val(k, input_value)
+      begin
+        input_value = get_val!(k)
+        set_val(k, input_value)
+      rescue ValueNotPresentError
+      end
     end
   end
 

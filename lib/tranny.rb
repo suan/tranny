@@ -27,6 +27,15 @@ class Tranny
   end
 
   def convert(input)
+
+    unless input.is_a? Hash
+      if input.respond_to? :to_hash
+        input = input.to_hash
+      else
+        raise ArgumentError "object is not a Hash or does not respond to to_hash"
+      end
+    end
+
     @input_hash = input
     instance_exec(&self.class.transform_block)
     Hash[@output_hash]

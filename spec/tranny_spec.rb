@@ -351,4 +351,27 @@ describe Tranny do
     end
 
   end
+
+  context "non-hashes" do
+    it "works with objects that respond to to_hash" do
+      class TestTranny < Tranny
+        transform do
+          passthrough :foo
+          input :bar => :bar_key
+        end
+      end
+
+      class NonHash
+        def to_hash
+          { :foo => "FOO", :bar => 'BAR' }
+        end
+      end
+
+      input_object = NonHash.new
+      desired_hash = { :bar_key => 'BAR', :foo => "FOO" }
+
+      result = TestTranny.convert(input_object)
+      result.should == desired_hash
+    end
+  end
 end

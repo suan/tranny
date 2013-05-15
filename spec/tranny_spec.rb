@@ -62,6 +62,21 @@ describe Tranny do
         TestTranny.convert(input_hash).should == {}
       end
 
+      context "the input key is present but the value is nil" do
+        it "does set it in the input" do
+          class TestTranny < Tranny
+            transform do
+              input "foo" => :bar
+            end
+          end
+
+          input_hash = { "foo" => nil }
+          desired_hash = { :bar => nil }
+
+          TestTranny.convert(input_hash).should == desired_hash
+        end
+      end
+
       it "can set a default value" do
         class TestTranny < Tranny
           transform do

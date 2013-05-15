@@ -76,6 +76,17 @@ class Tranny
     end
   end
 
+  def key_present?(src)
+    src = (@input_nest + [src]).flatten unless @input_nest.empty?
+    if src.is_a? Array
+      src.reduce(@input_hash) do |h, k|
+        h[k].is_a?(Hash) ? h[k] : h.has_key?(k)
+      end
+    else
+      @input_hash.key?(src)
+    end
+  end
+
   def parse_options(options)
     from, to, via, default = nil
 
@@ -134,7 +145,7 @@ class Tranny
 
   def input(options)
     from, to, via, default = parse_options(options)
-    return if get_val(from).nil? && default.nil?
+    return if !key_present?(from) && default.nil?
 
     new_value = if get_val(from).nil? && !default.nil?
       default.respond_to?(:call) ? default.call : default

@@ -3,7 +3,7 @@ Tranny
 
 Tranny provides a simple DSL to transform a supplied hash with an arbitrary structure to another hash with an even more arbitrary structure.
 
-***Note:*** *Tranny does not simply modify the hash you have passed in. It actually creates a new hash from scratch. It only copies or does transformations on the fields you specify in the transform block.*
+***Note:*** *Tranny does not simply modify the hash you have passed in. It actually creates a new hash from scratch. It only copies or does transformations on the fields you specify in the transform block, unless you use the `passthrough_remaining` option (see below)*
 
 Support
 =======

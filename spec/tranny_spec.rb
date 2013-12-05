@@ -367,6 +367,39 @@ describe Tranny do
 
   end
 
+  context "passthrough_remaining" do
+    it "passes all keys that were not specified in an #input through" do
+      class TestTranny < Tranny
+        transform do
+          input :bar => :bar_key
+          passthrough :foo
+          passthrough_remaining
+        end
+      end
+
+      input_hash = { :bar => 'one', :foo => 1, :lala => nil, :lolo => 1 }
+      desired_hash = { :bar_key => 'one', :foo => 1, :lala => nil, :lolo => 1 }
+
+      result = TestTranny.convert(input_hash)
+      result.should == desired_hash
+    end
+
+    it "treats #input_multiple keys as distinct, and does not pass them through" do
+      class TestTranny < Tranny
+        transform do
+          input_multiple [:bar, :key] => :bar_key
+          passthrough_remaining
+        end
+      end
+
+      input_hash = { :bar => 'one', :key => 'two', :lala => nil, :lolo => 1 }
+      desired_hash = { :bar_key => 'one two', :lala => nil, :lolo => 1 }
+
+      result = TestTranny.convert(input_hash)
+      result.should == desired_hash
+    end
+  end
+
   context "non-hashes" do
     it "works with objects that respond to to_hash" do
       class TestTranny < Tranny

@@ -132,6 +132,16 @@ Want to combine multiple inputs when one or more are an array?
 
         input [ [ "foo", "bar" ], "baz" ] => "combined nested hash"
 
+Want to simply pass some parts of your original hash through? Simply specify the keys you want passed through:
+
+        passthrough :this_one, :that_one
+
+Want to pass every part of your original hash that was not transformed through? **TRANNY CAN DO THAT TOO!** Simply add the following at the _end_ of your `transform` block:
+
+        passthrough_remaining
+
+***Note:*** *You MUST specify it only at the end of your `transform` block, as Tranny needs to know all the keys that were transformed before it!*
+
 Shorthand Limitations
 ==============
 

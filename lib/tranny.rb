@@ -181,7 +181,7 @@ class Tranny
       get_val(from)
     end
 
-    record(from)
+    record(*from)
     set_val(to, new_value)
   end
 

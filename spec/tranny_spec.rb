@@ -398,6 +398,66 @@ describe Tranny do
       result = TestTranny.convert(input_hash)
       result.should == desired_hash
     end
+
+    it "treats nested inputs as distinct, and does not pass them through" do
+      class TestTranny < Tranny
+        transform do
+          input [:outer, :bar] => :sandbar
+          passthrough_remaining
+        end
+      end
+
+      input_hash = { :outer => { :bar => 1 }, :bar => :bie, :outer2 => { :bar2 => 2 } }
+      desired_hash = { :sandbar => 1, :outer2 => { :bar2 => 2 } }
+
+      result = TestTranny.convert(input_hash)
+      result.should == desired_hash
+    end
+
+    it "passes through nested outputs if they were not used as inputs" do
+      class TestTranny < Tranny
+        transform do
+          input :sandbar => [:outer, :bar]
+          passthrough_remaining
+        end
+      end
+
+      input_hash = { :sandbar => { :inner => 1 }, :bar => :bie, :outer2 => { :bar2 => 2 } }
+      desired_hash = { :outer => { :bar => { :inner => 1 } }, :bar => :bie, :outer2 => { :bar2 => 2 } }
+
+      result = TestTranny.convert(input_hash)
+      result.should == desired_hash
+    end
+
+    it "Only not passthrough the inputs in a nested-nested situation" do
+      class TestTranny < Tranny
+        transform do
+          input [:sand, :bar] => [:outer, :otter]
+          passthrough_remaining
+        end
+      end
+
+      input_hash = { :sand => { :bar => 1 }, :bar => :bie, :otter => 2 }
+      desired_hash = { :outer => { :otter => 1 }, :otter => 2 }
+
+      result = TestTranny.convert(input_hash)
+      result.should == desired_hash
+    end
+
+    it "Treats array-keys as a single entity, and passes their individual components through" do
+      class TestTranny < Tranny
+        transform do
+          input [[:sand, :bar], :baz] => :combo_bar
+          passthrough_remaining
+        end
+      end
+
+      input_hash = { [:sand, :bar] => { :baz => 1 }, :bar => :bie, :baz => :ket, :otter => 2 }
+      desired_hash = { :combo_bar => 1, :bar => :bie, :otter => 2 }
+
+      result = TestTranny.convert(input_hash)
+      result.should == desired_hash
+    end
   end
 
   context "non-hashes" do
